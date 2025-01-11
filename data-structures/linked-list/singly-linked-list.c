@@ -28,11 +28,10 @@ struct Node* create_node(int value, struct Node* next) {
 }
 
 void insert_front(struct LinkedList* list, int value) {
-    list->head = create_node(value, list->head);
-
+    struct Node* new_node = create_node(value, list->head);
+    list->head = new_node;
     if (list->tail == NULL)
-        list->tail = list->head;
-
+        list->tail = new_node;
     list->length++;
 }
 
@@ -41,112 +40,85 @@ void insert_back(struct LinkedList* list, int value) {
         insert_front(list, value);
         return;
     }
-
-    list->tail->next = create_node(value, NULL);
-    list->tail = list->tail->next;
+    struct Node* new_node = create_node(value, NULL);
+    list->tail->next = new_node;
+    list->tail = new_node;
     list->length++;
 }
 
 void insert_at(struct LinkedList* list, int value, int index) {
     if (index <= 0) {
         insert_front(list, value);
-    }
-    else if (index >= list->length) {
+    } else if (index >= list->length) {
         insert_back(list, value);
-    }
-    else {
+    } else {
         struct Node* temp_node = list->head;
-
         for (int i = 0; i < index - 1; i++)
             temp_node = temp_node->next;
-
         temp_node->next = create_node(value, temp_node->next);
         list->length++;
     }
 }
 
 void delete_front(struct LinkedList* list) {
+    if (list->head == NULL) return;
+    struct Node* temp_node = list->head;
+    list->head = list->head->next;
+    free(temp_node);
     if (list->head == NULL)
-        return;
-    
-    if (list->head == list->tail) {
-        free(list->head);
-        list->head = list->tail = NULL;
-        list->length--;
-        return;
-    }
-
-    struct Node* next = list->head->next;
-    free(list->head);
-    list->head = next;
+        list->tail = NULL;
     list->length--;
 }
 
 void delete_back(struct LinkedList* list) {
-    if (list->head == NULL)
-        return;
-
+    if (list->head == NULL) return;
     if (list->head == list->tail) {
         free(list->head);
         list->head = list->tail = NULL;
-        list->length--;
-        return;
+    } else {
+        struct Node* temp_node = list->head;
+        while (temp_node->next != list->tail)
+            temp_node = temp_node->next;
+        free(list->tail);
+        temp_node->next = NULL;
+        list->tail = temp_node;
     }
-
-    struct Node* temp_node = list->head;
-    while (temp_node->next != list->tail)
-        temp_node = temp_node->next;
-    
-    free(temp_node->next);
-    temp_node->next = NULL;
-    list->tail = temp_node;
     list->length--;
 }
 
 void reverse_list(struct LinkedList* list) {
     if (list->head == list->tail) return;
-
-    struct Node* head_node = list->head;
-    list->head = list->tail;
-    list->tail = head_node;
-
     struct Node* prev_node = NULL;
-    struct Node* curr_node = head_node;
-
+    struct Node* curr_node = list->head;
+    list->tail = list->head;
     while (curr_node != NULL) {
         struct Node* next = curr_node->next;
         curr_node->next = prev_node;
         prev_node = curr_node;
         curr_node = next;
     }
+    list->head = prev_node;
 }
 
 void destroy_list(struct LinkedList* list) {
     struct Node* temp_node = list->head;
-
     while (temp_node != NULL) {
         struct Node* next = temp_node->next;
         free(temp_node);
         temp_node = next;
     }
-
     free(list);
 }
 
 void display_list(struct LinkedList* list) {
     if (list == NULL || list->head == NULL) return;
-
     struct Node* temp_node = list->head;
-
-    while (temp_node->next != NULL) {
-        printf("%d -> ", temp_node->value);
+    while (temp_node != NULL) {
+        printf("%d", temp_node->value);
+        if (temp_node->next != NULL) printf(" -> ");
         temp_node = temp_node->next;
     }
-
-    printf("%d\n", temp_node->value);
-    printf("value(head) = %d\n", list->head->value);
-    printf("value(tail) = %d\n", list->tail->value);
-    printf("length = %d\n", list->length);
+    printf("\nvalue(head) = %d\nvalue(tail) = %d\nlength = %d\n", list->head->value, list->tail->value, list->length);
 }
 
 int main(void) {
