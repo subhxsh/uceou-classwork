@@ -12,7 +12,7 @@ struct LinkedList {
     int length;
 };
 
-struct LinkedList* create_list() {
+struct LinkedList* create_list(void) {
     struct LinkedList* list = malloc(sizeof(struct LinkedList));
     list->head = NULL;
     list->tail = NULL;
@@ -89,41 +89,86 @@ void reverse_list(struct LinkedList* list) {
     list->head = prev_node;
 }
 
-void destroy_list(struct LinkedList** list) {
-    struct Node* temp_node = (*list)->head;
+void destroy_list(struct LinkedList* list) {
+    struct Node* temp_node = list->head;
     while (temp_node != NULL) {
         struct Node* next = temp_node->next;
         free(temp_node);
         temp_node = next;
     }
-    free(*list);
-    *list = NULL;
+    free(list);
 }
 
 void display_list(struct LinkedList* list) {
-    if (list == NULL || list->head == NULL) return;
-    struct Node* temp_node = list->head;
-    while (temp_node->next != NULL) {
-        printf("%d -> ", temp_node->value);
-        temp_node = temp_node->next;
+    printf("list: ");
+    if (list->head == NULL) printf("<empty>\n");
+    else {
+        struct Node* temp_node = list->head;
+        while (temp_node->next != NULL) {
+            printf("%d -> ", temp_node->value);
+            temp_node = temp_node->next;
+        }
+        printf("%d\nvalue(head): %d\nvalue(tail): %d\n", temp_node->value, list->head->value, list->tail->value);
     }
-    printf("%d\nvalue(head) = %d\nvalue(tail) = %d\nlength = %d\n", temp_node->value, list->head->value, list->tail->value, list->length);
+    printf("length: %d\n", list->length);
+}
+
+void clear_screen(void) {
+    #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+    system("clear");
+    #endif
+
+    #if defined(_WIN32)
+    system("cls");
+    #endif
 }
 
 int main(void) {
+    clear_screen();
     struct LinkedList* list = create_list();
-    insert_front(list, 10);
-    insert_front(list, 20);
-    insert_front(list, 30);
-    insert_back(list, 40);
-    insert_back(list, 50);
-    insert_at(list, 60, 2);
-    insert_back(list, 100);
-    insert_front(list, 200);
-    delete_front(list);
-    delete_back(list);
-    reverse_list(list);
-    display_list(list);
-    destroy_list(&list);
+    int option, value, index = 0;
+    do {
+        display_list(list);
+        printf("\n=== Linked List Operations ===\n\n1. Insert at front\n2. Insert at back\n3. Insert at index\n4. Delete from front\n5. Delete from back\n6. Reverse list\n7. Reset list\n8. Exit\n\nEnter choice: ");
+        scanf("%d", &option);
+        switch (option) {
+            case 1:
+                printf("Enter value: ");
+                scanf("%d", &value);
+                insert_front(list, value);
+                break;
+            case 2:
+                printf("Enter value: ");
+                scanf("%d", &value);
+                insert_back(list, value);
+                break;
+            case 3:
+                printf("Enter value: ");
+                scanf("%d", &value);
+                printf("Enter index: ");
+                scanf("%d", &index);
+                insert_at(list, value, index);
+                break;
+            case 4:
+                delete_front(list);
+                break;
+            case 5:
+                delete_back(list);
+                break;
+            case 6:
+                reverse_list(list);
+                break;
+            case 7:
+                destroy_list(list);
+                list = create_list();
+                break;
+            case 8:
+                destroy_list(list);
+                break;
+            default:
+                break;
+        }
+        clear_screen();
+    } while (option != 8);
     return 0;
 }
