@@ -28,30 +28,21 @@ struct Node* create_node(int value, struct Node* next) {
 }
 
 void insert_front(struct LinkedList* list, int value) {
-    struct Node* new_node = create_node(value, list->head);
-    list->head = new_node;
-    if (list->tail == NULL)
-        list->tail = new_node;
+    list->head = create_node(value, list->head);
+    if (list->tail == NULL) list->tail = list->head;
     list->length++;
 }
 
 void insert_back(struct LinkedList* list, int value) {
-    if (list->head == NULL) {
-        insert_front(list, value);
-        return;
-    }
-    struct Node* new_node = create_node(value, NULL);
-    list->tail->next = new_node;
-    list->tail = new_node;
+    if (list->tail == NULL) list->head = list->tail = create_node(value, NULL);
+    else list->tail = list->tail->next = create_node(value, NULL);
     list->length++;
 }
 
 void insert_at(struct LinkedList* list, int value, int index) {
-    if (index <= 0) {
-        insert_front(list, value);
-    } else if (index >= list->length) {
-        insert_back(list, value);
-    } else {
+    if (index <= 0) insert_front(list, value);
+    else if (index >= list->length) insert_back(list, value);
+    else {
         struct Node* temp_node = list->head;
         for (int i = 0; i < index - 1; i++)
             temp_node = temp_node->next;
@@ -65,8 +56,7 @@ void delete_front(struct LinkedList* list) {
     struct Node* temp_node = list->head;
     list->head = list->head->next;
     free(temp_node);
-    if (list->head == NULL)
-        list->tail = NULL;
+    if (list->head == NULL) list->tail = NULL;
     list->length--;
 }
 
@@ -79,7 +69,7 @@ void delete_back(struct LinkedList* list) {
         struct Node* temp_node = list->head;
         while (temp_node->next != list->tail)
             temp_node = temp_node->next;
-        free(list->tail);
+        free(temp_node->next);
         temp_node->next = NULL;
         list->tail = temp_node;
     }
@@ -89,8 +79,7 @@ void delete_back(struct LinkedList* list) {
 void reverse_list(struct LinkedList* list) {
     if (list->head == list->tail) return;
     struct Node* prev_node = NULL;
-    struct Node* curr_node = list->head;
-    list->tail = list->head;
+    struct Node* curr_node = list->tail = list->head;
     while (curr_node != NULL) {
         struct Node* next = curr_node->next;
         curr_node->next = prev_node;
@@ -113,12 +102,11 @@ void destroy_list(struct LinkedList* list) {
 void display_list(struct LinkedList* list) {
     if (list == NULL || list->head == NULL) return;
     struct Node* temp_node = list->head;
-    while (temp_node != NULL) {
-        printf("%d", temp_node->value);
-        if (temp_node->next != NULL) printf(" -> ");
+    while (temp_node->next != NULL) {
+        printf("%d -> ", temp_node->value);
         temp_node = temp_node->next;
     }
-    printf("\nvalue(head) = %d\nvalue(tail) = %d\nlength = %d\n", list->head->value, list->tail->value, list->length);
+    printf("%d\nvalue(head) = %d\nvalue(tail) = %d\nlength = %d\n", temp_node->value, list->head->value, list->tail->value, list->length);
 }
 
 int main(void) {
