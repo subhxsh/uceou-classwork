@@ -89,14 +89,15 @@ void reverse_list(struct LinkedList* list) {
     list->head = prev_node;
 }
 
-void destroy_list(struct LinkedList* list) {
-    struct Node* temp_node = list->head;
+void destroy_list(struct LinkedList** list) {
+    struct Node* temp_node = (*list)->head;
     while (temp_node != NULL) {
         struct Node* next = temp_node->next;
         free(temp_node);
         temp_node = next;
     }
-    free(list);
+    free(*list);
+    *list = NULL;
 }
 
 void display_list(struct LinkedList* list) {
@@ -123,6 +124,6 @@ int main(void) {
     delete_back(list);
     reverse_list(list);
     display_list(list);
-    destroy_list(list);
+    destroy_list(&list);
     return 0;
 }
